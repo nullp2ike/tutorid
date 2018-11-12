@@ -23,7 +23,8 @@ public class BookingRequestChecks {
         Tutor tutor = new TutorCreator(Any.tutorUsername()).create();
         Student student = new StudentCreator(Any.studentUsername()).create();
 
-        Response response = new BookingRequest(DefaultBookingData.tutorScheduled(student.getNickname())).asTutor(tutor, student);
+        Response response = new BookingRequest(DefaultBookingData.tutorScheduled(student.getNickname()))
+                .asTutor(tutor, student);
         response.then()
                 .statusCode(HttpStatus.SC_OK)
                 .body("description", equalTo("Booking created"));
@@ -33,6 +34,8 @@ public class BookingRequestChecks {
     public void Student_RequestsBookingViaTutorAvailableTimeSlot_Success(){
         Tutor tutor = new TutorCreator(Any.tutorUsername()).create();
         Student student = new StudentCreator(Any.studentUsername()).create();
+
+
 
         Response response = new BookingRequest().asStudent(tutor, student);
     }
