@@ -3,18 +3,10 @@ package requests;
 import io.restassured.filter.cookie.CookieFilter;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import utils.Setup;
 import utils.domain.Student;
 import utils.domain.Tutor;
 import utils.builders.BookingRequestBuilder;
-
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
-import java.util.concurrent.TimeUnit;
 
 import static io.restassured.RestAssured.given;
 
