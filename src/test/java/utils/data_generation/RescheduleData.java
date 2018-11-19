@@ -15,10 +15,12 @@ public class RescheduleData {
 
     private JSONObject location;
 
-    public RescheduleBuilder rescheduled(final Tutor tutor, final Student student) {
+    public RescheduleBuilder rescheduledAt(final Tutor tutor, final Student student, int offset, int duration) {
         RescheduleBuilder rescheduleBuilder = new RescheduleBuilder();
         final BookingRequestBuilder builder = setupDefaultValues(tutor);
         this.location.put("connectedCount", 1);
+        builder.events(createEventTimes(offset, duration));
+
         builder.location(this.location);
         builder.userInfo(new JSONObject().put("nickname", student.getNickname()));
 
@@ -39,11 +41,6 @@ public class RescheduleData {
         builder.paymentMethod("cash");
         setupDefaultPublicLocation(tutor);
         builder.locationId(String.valueOf(tutor.getPublicLocations().get(0).getId()));
-        final Instant tomorrow = Instant.now().truncatedTo(ChronoUnit.HOURS).plus(1, ChronoUnit.DAYS);
-        final String startDateTime = tomorrow.plus(10, ChronoUnit.HOURS).toString();
-        final String endDateTime = tomorrow.plus(10, ChronoUnit.HOURS).toString();
-        final JSONArray bookingEvents = new JSONArray().put(new JSONObject().put("startDateTime", startDateTime).put("endDateTime", endDateTime));
-        builder.events(bookingEvents);
 
         return builder;
     }
@@ -65,5 +62,14 @@ public class RescheduleData {
         bookingEventDeclineBuilder.cancelAll(false);
         bookingEventDeclineBuilder.justification("justification");
         return bookingEventDeclineBuilder;
+    }
+
+    private JSONArray createEventTimes(int offset, int duration) {
+        final Instant tomorrow = Instant.now().truncatedTo(ChronoUnit.HOURS).plus(1, ChronoUnit.DAYS);
+        final String startDateTime = tomorrow.plus(offset, ChronoUnit.HOURS).toString();
+        final String endDateTime = tomorrow.plus(offset + duration, ChronoUnit.HOURS).toString();
+        final JSONArray bookingEvents = new JSONArray().put(new JSONObject().put("startDateTime", startDateTime).put("endDateTime", endDateTime));
+
+        return bookingEvents;
     }
 }

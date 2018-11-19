@@ -19,7 +19,7 @@ import static org.hamcrest.core.IsEqual.equalTo;
 @ExtendWith(PropertiesExtension.class)
 public class BookingReschedulingChecks {
     @Test
-    public void simpleReschedule() {
+    public void RescheduleNegativeDurationLesson() {
         final Tutor tutor = new TutorCreator(Any.tutorUsername()).create();
         final Student student = new StudentCreator(Any.studentUsername()).create();
 
@@ -29,7 +29,6 @@ public class BookingReschedulingChecks {
         final BookingRequestBuilder builder = new DefaultBookingData().bookedByStudentViaTimeSlot(tutor, student);
 
         BookingRequest bookingRequest = new BookingRequest(builder);
-        System.out.println(builder.build());
         Response bookingResponse = bookingRequest.asStudent(tutor, student);
 
         int bookingId = new JSONObject(bookingResponse.getBody().asString()).getJSONArray("data").getJSONObject(0).getInt("id");
@@ -38,11 +37,66 @@ public class BookingReschedulingChecks {
                 .then()
                 .statusCode(HttpStatus.SC_OK);
 
-        final RescheduleBuilder rescheduleBuilder = new RescheduleData().rescheduled(tutor, student);
+        final RescheduleBuilder rescheduleBuilder = new RescheduleData().rescheduledAt(tutor, student, 0, -1);
         final Response rescheduleResponse = new BookingRequest().reschedule(tutor.getCookieFilter(), rescheduleBuilder, tutor.getNickname(), bookingId);
-
         rescheduleResponse
                 .then()
+                .statusCode(HttpStatus.SC_OK)
+                .body("success", equalTo(false));
+    }
+
+    //Currently is allowed
+    @Test
+    public void RescheduleZeroDurationLesson() {
+        final Tutor tutor = new TutorCreator(Any.tutorUsername()).create();
+        final Student student = new StudentCreator(Any.studentUsername()).create();
+
+        final Response r = new Availability().tomorrowFromNow1H().add(tutor);
+        r.then().body("description", equalTo("Availability created"));
+
+        final BookingRequestBuilder builder = new DefaultBookingData().bookedByStudentViaTimeSlot(tutor, student);
+
+        BookingRequest bookingRequest = new BookingRequest(builder);
+        Response bookingResponse = bookingRequest.asStudent(tutor, student);
+
+        int bookingId = new JSONObject(bookingResponse.getBody().asString()).getJSONArray("data").getJSONObject(0).getInt("id");
+        Response bookingConfirmationResponse = bookingRequest.confirm(tutor.getCookieFilter(), tutor.getNickname(), bookingId);
+        bookingConfirmationResponse
+                .then()
                 .statusCode(HttpStatus.SC_OK);
+
+        final RescheduleBuilder rescheduleBuilder = new RescheduleData().rescheduledAt(tutor, student, 0, 0);
+        final Response rescheduleResponse = new BookingRequest().reschedule(tutor.getCookieFilter(), rescheduleBuilder, tutor.getNickname(), bookingId);
+        rescheduleResponse
+                .then()
+                .statusCode(HttpStatus.SC_OK)
+                .body("success", equalTo(true));
+    }
+
+    @Test
+    public void SimpleReschedule() {
+        final Tutor tutor = new TutorCreator(Any.tutorUsername()).create();
+        final Student student = new StudentCreator(Any.studentUsername()).create();
+
+        final Response r = new Availability().tomorrowFromNow1H().add(tutor);
+        r.then().body("description", equalTo("Availability created"));
+
+        final BookingRequestBuilder builder = new DefaultBookingData().bookedByStudentViaTimeSlot(tutor, student);
+
+        BookingRequest bookingRequest = new BookingRequest(builder);
+        Response bookingResponse = bookingRequest.asStudent(tutor, student);
+
+        int bookingId = new JSONObject(bookingResponse.getBody().asString()).getJSONArray("data").getJSONObject(0).getInt("id");
+        Response bookingConfirmationResponse = bookingRequest.confirm(tutor.getCookieFilter(), tutor.getNickname(), bookingId);
+        bookingConfirmationResponse
+                .then()
+                .statusCode(HttpStatus.SC_OK);
+
+        final RescheduleBuilder rescheduleBuilder = new RescheduleData().rescheduledAt(tutor, student, 0, 1);
+        final Response rescheduleResponse = new BookingRequest().reschedule(tutor.getCookieFilter(), rescheduleBuilder, tutor.getNickname(), bookingId);
+        rescheduleResponse
+                .then()
+                .statusCode(HttpStatus.SC_OK)
+                .body("success", equalTo(true));
     }
 }
