@@ -50,7 +50,7 @@ public class BookingRequestChecks {
         //Tutor invites student to join his/her network
         sendInviteAndAcceptByStudent(tutor, student);
 
-        //Stetup booking request data
+        //Setup booking request data
         final BookingRequestBuilder builder = new DefaultBookingData().bookedByStudentViaTimeSlot(tutor, student);
 
         //Send booking request
@@ -70,5 +70,7 @@ public class BookingRequestChecks {
                       .statusCode(HttpStatus.SC_OK)
                       .body("success", equalTo(true));
     }
+
+
 
 }
