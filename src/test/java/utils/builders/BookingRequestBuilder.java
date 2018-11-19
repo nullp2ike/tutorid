@@ -62,6 +62,10 @@ public class BookingRequestBuilder {
         return this;
     }
 
+    public JSONObject getBookingRequest() {
+        return bookingRequest;
+    }
+
     public String build(){
         return bookingRequest.toString();
     }

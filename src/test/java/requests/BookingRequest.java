@@ -4,9 +4,10 @@ import io.restassured.filter.cookie.CookieFilter;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import utils.Setup;
+import utils.builders.BookingRequestBuilder;
+import utils.builders.RescheduleBuilder;
 import utils.domain.Student;
 import utils.domain.Tutor;
-import utils.builders.BookingRequestBuilder;
 
 import static io.restassured.RestAssured.given;
 
@@ -73,6 +74,15 @@ public class BookingRequest {
                 .contentType(ContentType.JSON)
                 .when()
                 .post(Setup.usersUrl + "/" + nickname + "/calendar/bookings/events/" + bookingId + "/confirm");
+        return response;
+    }
+
+    public Response reschedule(CookieFilter cookieFilter, RescheduleBuilder builder, String nickname, int bookingId) {
+        Response response = given().filter(cookieFilter)
+                .contentType(ContentType.JSON)
+                .body(builder.build())
+                .when()
+                .post(Setup.usersUrl + "/" + nickname + "/calendar/bookings/events/" + bookingId + "/reschedule");
         return response;
     }
 }
