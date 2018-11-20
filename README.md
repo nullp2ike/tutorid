@@ -15,10 +15,13 @@ or execute the gradle test task from command line.
 
 ## Group info
 
-Hina Anwar
-Khaled Charkie
-Mehwish Peter
-Hanzla Sajid
+1. Hina Anwar
+
+2. Khaled Charkie
+
+3. Mehwish Peter
+
+4. Hanzla Sajid
 
 ## License
 
