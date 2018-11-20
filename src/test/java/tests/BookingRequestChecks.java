@@ -71,6 +71,63 @@ public class BookingRequestChecks {
                       .body("success", equalTo(true));
     }
 
+    @Test
+    public void Student_RequestsBooking_ThenCancels_TutorConfirms() {
 
+        final Tutor tutor = new TutorCreator(Any.tutorUsername()).create();
+        final Student student = new StudentCreator(Any.studentUsername()).create();
+
+        final Response r = new Availability().tomorrowFromNow1H().add(tutor);
+        r.then().body("description", equalTo("Availability created"));
+
+        sendInviteAndAcceptByStudent(tutor, student);
+
+        final BookingRequestBuilder builder = new DefaultBookingData().bookedByStudentViaTimeSlot(tutor, student);
+
+        //Send booking request
+        final Response response = new BookingRequest(builder).asStudent(tutor, student);
+
+        JSONObject jsonObject = new JSONObject(response.getBody().asString());
+        // Getting booking Id
+        int bookingId = (int) new JSONObject(jsonObject.getJSONArray("data").get(0).toString()).get("id");
+
+        // Cancelling booking from student  (A little strange to me that in request we use tutor nickname)
+        final Response declineResponse = new BookingRequest(builder).decline(student.getCookieFilter(),tutor.getNickname(),bookingId);
+
+        // Confirming booking from tutor
+        final Response confirmResponse = new BookingRequest(builder).confirm(tutor.getCookieFilter(),tutor.getNickname(),bookingId);
+
+        confirmResponse.then()
+                .statusCode(HttpStatus.SC_OK)
+                .body("success", equalTo(false));
+    }
+
+    @Test
+    public void Student_RequestsBooking_TutorCancels() {
+
+        final Tutor tutor = new TutorCreator(Any.tutorUsername()).create();
+        final Student student = new StudentCreator(Any.studentUsername()).create();
+
+        final Response r = new Availability().tomorrowFromNow1H().add(tutor);
+        r.then().body("description", equalTo("Availability created"));
+
+        sendInviteAndAcceptByStudent(tutor, student);
+
+        final BookingRequestBuilder builder = new DefaultBookingData().bookedByStudentViaTimeSlot(tutor, student);
+
+        //Send booking request
+        final Response response = new BookingRequest(builder).asStudent(tutor, student);
+
+        JSONObject jsonObject = new JSONObject(response.getBody().asString());
+        // Getting booking Id
+        int bookingId = (int) new JSONObject(jsonObject.getJSONArray("data").get(0).toString()).get("id");
+
+        // Declining booking from tutor
+        final Response declineResponse = new BookingRequest(builder).confirm(tutor.getCookieFilter(),tutor.getNickname(),bookingId);
+
+        declineResponse.then()
+                .statusCode(HttpStatus.SC_OK)
+                .body("success", equalTo(true));
+    }
 
 }
