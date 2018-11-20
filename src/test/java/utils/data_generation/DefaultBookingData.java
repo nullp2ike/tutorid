@@ -33,6 +33,18 @@ public class DefaultBookingData {
         return builder;
     }
 
+    public BookingRequestBuilder bookedByStudentViaTimeSlot2(final Tutor tutor, final Student student){
+        final BookingRequestBuilder builder = setupDefaultValues2(tutor);
+        builder.location(this.location);
+        builder.userInfo(new JSONObject().put("email", student.getEmail())
+                .put("firstName",student.getFirstName())
+                .put("lastName",student.getLastName())
+                .put("language","en")
+                .put("nickname",student.getNickname())
+        );
+        return builder;
+    }
+
     private BookingRequestBuilder setupDefaultValues(final Tutor tutor){
         final BookingRequestBuilder builder = new BookingRequestBuilder();
         builder.additionalInfo("additional_info");
@@ -47,6 +59,26 @@ public class DefaultBookingData {
         final Instant tomorrow = Instant.now().truncatedTo(ChronoUnit.HOURS).plus(1, ChronoUnit.DAYS);
         final String startDateTime = tomorrow.toString();
         final String endDateTime = tomorrow.plus(1, ChronoUnit.HOURS).toString();
+        final JSONArray bookingEvents = new JSONArray().put(new JSONObject().put("startDateTime", startDateTime).put("endDateTime", endDateTime));
+        builder.events(bookingEvents);
+
+        return builder;
+    }
+
+    private BookingRequestBuilder setupDefaultValues2(final Tutor tutor){
+        final BookingRequestBuilder builder = new BookingRequestBuilder();
+        builder.additionalInfo("additional_info");
+        builder.level("level1");
+        builder.subjectId(6201);
+        builder.zoneId("Europe/Tallinn");
+        builder.recurrenceRule("");
+        builder.price(20);
+        builder.paymentMethod("cash");
+        setupDefaultPublicLocation(tutor);
+        builder.locationId(String.valueOf(tutor.getPublicLocations().get(0).getId()));
+        final Instant tomorrow = Instant.now().truncatedTo(ChronoUnit.HOURS).plus(15, ChronoUnit.DAYS);
+        final String startDateTime = tomorrow.toString();
+        final String endDateTime = tomorrow.plus(12, ChronoUnit.HOURS).toString();
         final JSONArray bookingEvents = new JSONArray().put(new JSONObject().put("startDateTime", startDateTime).put("endDateTime", endDateTime));
         builder.events(bookingEvents);
 
