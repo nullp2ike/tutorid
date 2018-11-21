@@ -75,4 +75,14 @@ public class BookingRequest {
                 .post(Setup.usersUrl + "/" + nickname + "/calendar/bookings/events/" + bookingId + "/confirm");
         return response;
     }
+
+    public Response reschedule(CookieFilter cookieFilter, String nickname, int bookingId){
+        Response response = given().filter(cookieFilter)
+                .contentType(ContentType.JSON)
+                .when()
+                .post(Setup.usersUrl + "/" + nickname + "/calendar/bookings/events/" + bookingId + "/reschedule");
+        return response;
+    }
+
+    //https://apis.tutor.id/users/jackjack/calendar/bookings/events/8016/reschedule
 }
