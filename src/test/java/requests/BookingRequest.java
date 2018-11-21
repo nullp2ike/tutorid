@@ -83,4 +83,6 @@ public class BookingRequest {
                 .post(Setup.usersUrl + "/" + nickname + "/calendar/bookings/events/" + bookingId + "/reschedule");
         return response;
     }
+
+    //https://apis.tutor.id/users/jackjack/calendar/bookings/events/8016/reschedule
 }

@@ -31,7 +31,7 @@ public class BookingConfirmationChecks {
     @Test
     public void Student_RequestsBookingOutsideTutorAvailableTimeSlot_fail() {
         //Test to check if student fails to book a lesson outside tutor hours
-        // Test to check if tutor can cancel a booking
+
 
         final Tutor tutor = new TutorCreator(Any.tutorUsername()).create();
         final Student student = new StudentCreator(Any.studentUsername()).create();
@@ -40,7 +40,7 @@ public class BookingConfirmationChecks {
         r.then().body("description", equalTo("Availability created"));
 
         //Tutor invites student to join his/her network
-        sendInviteAndAcceptByStudent2(tutor, student);
+        sendInviteAndAcceptByStudent(tutor, student);
 
         //Stetup booking request data
         final BookingRequestBuilder builder = new DefaultBookingData().bookedByStudentViaTimeSlot2(tutor, student);
@@ -52,16 +52,7 @@ public class BookingConfirmationChecks {
                .body("description", equalTo("Tutor policy does not allow requesting booking outside availability & booking request is outside tutor's availability or tutor already has a booking during that time"));
     }
 
-    private void sendInviteAndAcceptByStudent2(final Tutor tutor, final Student student) {
-        new Invite().send(tutor, student.getEmail());
-        final Response invitationLinkResponse = new Invite().invitationLink(student);
-        final int invitationId = new JSONObject(invitationLinkResponse.getBody().asString()).getJSONObject("data").getInt("id");
 
-        final Response acceptResponse = new Invite().accept(invitationId, student);
-        acceptResponse.then()
-                .statusCode(HttpStatus.SC_OK)
-                .body("success", equalTo(true));
-    }
     @Test
     public void Student_confirmbookingmadebytutor_success() {
         // Test to check if student can confirm a booking done by tutor on his behalf
@@ -207,6 +198,41 @@ public class BookingConfirmationChecks {
         final Response accpetcancelledbooking = new BookingRequest().confirm(student.getCookieFilter(),tutor.getNickname(), eventId);
        System.out.println(accpetcancelledbooking.getBody().asString());
         accpetcancelledbooking.then().statusCode(HttpStatus.SC_OK).body("description", equalTo("Action not allowed on the selected booking event"));
+    }
+
+
+    @Test
+    public void tutor_CancelaCancelledBooking() {
+        //tutor cancels an already cancelled booking made by himself.
+
+        final Tutor tutor = new TutorCreator(Any.tutorUsername()).create();
+        final Student student = new StudentCreator(Any.studentUsername()).create();
+
+        final Response response = new BookingRequest(new DefaultBookingData().tutorScheduled(tutor, student))
+                .asTutor(tutor, student);
+
+        response.then()
+                .statusCode(HttpStatus.SC_OK)
+                .body("description", equalTo("Booking created"));
+
+        JSONObject jsonresponse  = new JSONObject(response.getBody().asString());
+        System.out.println(response.getBody().asString());
+        JSONArray jsondata= jsonresponse .getJSONArray("data");
+        int eventId = jsondata.getJSONObject(0).getInt("id");
+        //Booking is cancelled by tutor himself
+        final Response cancel = new BookingRequest().decline(tutor.getCookieFilter(),tutor.getNickname(), eventId);
+        System.out.println(cancel.getBody().asString());
+
+
+        final Response cancelcancelledbooking = new BookingRequest().decline(tutor.getCookieFilter(),tutor.getNickname(), eventId);
+        System.out.println(cancelcancelledbooking.getBody().asString());
+
+        JSONObject jsonforcancel  = new JSONObject(cancelcancelledbooking.getBody().asString());
+        JSONObject jsoncancelbody  = jsonforcancel.getJSONObject("data");
+        JSONArray jsonainstance= jsoncancelbody.getJSONArray("instances");
+        String bookingEventStatus = jsonainstance.getJSONObject(0).getString("bookingEventStatus");
+        assertThat(bookingEventStatus).isEqualTo("cancelledByTutorPending");
+
     }
 
 }
