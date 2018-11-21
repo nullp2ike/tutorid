@@ -14,7 +14,12 @@ Run the tests from your IDE (make sure its version is not too old so it supports
 or execute the gradle test task from command line.
 
 ## Group info
-Please write here your group number and members
+Group 2
+Mikk Õunmaa
+Tarmo-Riivo Tšernjavski
+Raul Rehepapp
+Joosua Adler
+Omar Purik
 
 ## License
 
