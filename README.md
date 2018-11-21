@@ -19,3 +19,10 @@ Please write here your group number and members
 ## License
 
 This project is licensed under the MIT License
+
+
+Group 4
+Team members:
+Musabir Musabayli
+Hans Henrik Viinalass
+Vladislav Stafinjak
