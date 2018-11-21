@@ -24,6 +24,7 @@ or execute the gradle test task from command line.
 4. Hanzla Sajid
 
 ##Tests made
+
 1. Tutor makes a booking on behalf of Student and cancels it booking himself
 
 2. Student makes a booking on tutor available time and cancels it himself
