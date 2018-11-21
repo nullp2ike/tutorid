@@ -60,6 +60,8 @@ public class BookingRequestChecks {
                 .body("description", equalTo("Booking created"));
     }
 
+
+
     private void sendInviteAndAcceptByStudent(final Tutor tutor, final Student student) {
         new Invite().send(tutor, student.getEmail());
         final Response invitationLinkResponse = new Invite().invitationLink(student);
@@ -129,5 +131,77 @@ public class BookingRequestChecks {
                 .statusCode(HttpStatus.SC_OK)
                 .body("success", equalTo(true));
     }
+
+    @Test
+    public void StudentBooksLessonSameTimeDifferentTutors_FirstTutorAccepts(){
+        final Tutor tutor1 = new TutorCreator(Any.tutorUsername()).create();
+        final Tutor tutor2 = new TutorCreator(Any.tutorUsername()).create();
+        final Student student = new StudentCreator(Any.studentUsername()).create();
+        final Response response1 = new BookingRequest(new DefaultBookingData().tutorScheduled(tutor1, student)).asTutor(tutor1, student);
+        final Response response2 = new BookingRequest(new DefaultBookingData().tutorScheduled(tutor2, student)).asTutor(tutor2, student);
+        final BookingRequestBuilder builder = new DefaultBookingData().bookedByStudentViaTimeSlot(tutor1, student);
+
+        response1.then()
+                .statusCode(HttpStatus.SC_OK)
+                .body("description", equalTo("Booking created"));
+
+        JSONObject jsonObject = new JSONObject(response1.getBody().asString());
+        int bookingId = (int) new JSONObject(jsonObject.getJSONArray("data").get(0).toString()).get("id");
+        final Response confirmResponse = new BookingRequest(builder).confirm(tutor1.getCookieFilter(),tutor1.getNickname(),bookingId);
+
+        confirmResponse.then()
+                .statusCode(HttpStatus.SC_OK)
+                .body("success", equalTo(true));
+
+        response2.then()
+                .body("description", equalTo("Student already has an unavailability or booking during this time"))
+                .body("success", equalTo(false));
+    }
+
+
+    @Test
+    public void StudentBooksLessonSameTimeDifferentTutors(){
+        final Tutor tutor1 = new TutorCreator(Any.tutorUsername()).create();
+        final Tutor tutor2 = new TutorCreator(Any.tutorUsername()).create();
+        final Student student = new StudentCreator(Any.studentUsername()).create();
+        final Response response1 = new BookingRequest(new DefaultBookingData().tutorScheduled(tutor1, student)).asTutor(tutor1, student);
+        final Response response2 = new BookingRequest(new DefaultBookingData().tutorScheduled(tutor2, student)).asTutor(tutor2, student);
+
+        response1.then()
+                .statusCode(HttpStatus.SC_OK)
+                .body("description", equalTo("Booking created"));
+
+        response2.then()
+                .body("description", equalTo("Student already has an unavailability or booking during this time"))
+                .body("success", equalTo(false));
+    }
+
+    @Test
+    public void StudentBooksLessonSameTimeDifferentTutors_FirstTutorCancels(){
+        final Tutor tutor1 = new TutorCreator(Any.tutorUsername()).create();
+        final Tutor tutor2 = new TutorCreator(Any.tutorUsername()).create();
+        final Student student = new StudentCreator(Any.studentUsername()).create();
+        final Response response1 = new BookingRequest(new DefaultBookingData().tutorScheduled(tutor1, student)).asTutor(tutor1, student);
+        final Response response2 = new BookingRequest(new DefaultBookingData().tutorScheduled(tutor2, student)).asTutor(tutor2, student);
+        final BookingRequestBuilder builder = new DefaultBookingData().bookedByStudentViaTimeSlot(tutor1, student);
+
+        response1.then()
+                .statusCode(HttpStatus.SC_OK)
+                .body("description", equalTo("Booking created"));
+
+        JSONObject jsonObject = new JSONObject(response1.getBody().asString());
+        int bookingId = (int) new JSONObject(jsonObject.getJSONArray("data").get(0).toString()).get("id");
+        final Response declineResponse = new BookingRequest(builder).decline(tutor1.getCookieFilter(),tutor1.getNickname(),bookingId);
+
+        declineResponse.then()
+                .statusCode(HttpStatus.SC_OK)
+                .body("success", equalTo(true));
+
+        response2.then()
+                .statusCode(HttpStatus.SC_OK)
+                .body("description", equalTo("Booking created"));
+    }
+
+
 
 }
