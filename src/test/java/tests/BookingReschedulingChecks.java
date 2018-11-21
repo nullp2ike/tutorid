@@ -15,6 +15,7 @@ import utils.domain.Student;
 import utils.domain.Tutor;
 import utils.junit_extensions.PropertiesExtension;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 
 @ExtendWith(PropertiesExtension.class)
@@ -161,4 +162,45 @@ public class BookingReschedulingChecks {
                 .statusCode(HttpStatus.SC_OK)
                 .body("success", equalTo(true));
     }
+
+    @Test
+    public void Tutor_RequestsBookingOnBehalfOfStudent_StudentReschedules_Success(){
+        final Tutor tutor = new TutorCreator(Any.tutorUsername()).create();
+        final Student student = new StudentCreator(Any.studentUsername()).create();
+
+        final Response response = new BookingRequest(new DefaultBookingData().tutorScheduled(tutor, student))
+                .asTutor(tutor, student);
+
+        response.then()
+                .statusCode(HttpStatus.SC_OK)
+                .body("description", equalTo("Booking created"));
+        final BookingRequestBuilder builder = new DefaultBookingData().tutorScheduled(tutor, student);
+        JSONObject jsonObject = new JSONObject(response.getBody().asString());
+        // Getting booking Id
+        int bookingId = (int) new JSONObject(jsonObject.getJSONArray("data").get(0).toString()).get("id");
+
+        // Confirming booking from tutor
+        final Response declineResponse = new BookingRequest(builder).decline(tutor.getCookieFilter(),tutor.getNickname(),bookingId);
+
+        // Formating JSON
+        JSONObject declineResponseJson = new JSONObject(declineResponse.getBody().asString());
+        String instances = (String) new JSONObject(declineResponseJson.getJSONObject("data")
+                .toString())
+                .getJSONArray("instances")
+                .get(0)
+                .toString();
+        String bookingEventStatus = new JSONObject(instances).getString("bookingEventStatus");
+
+        final RescheduleBuilder rescheduleBuilder = new RescheduleData().rescheduledAt(tutor, student, 0, 99);
+        final Response rescheduleResponse = new BookingRequest().reschedule(tutor.getCookieFilter(), rescheduleBuilder, tutor.getNickname(), bookingId);
+        rescheduleResponse
+                .then()
+                .statusCode(HttpStatus.SC_OK)
+                .body("success", equalTo(true));
+
+        // Checking for success
+        assertThat(bookingEventStatus.equals("rescheduled"));
+
+    }
+
 }

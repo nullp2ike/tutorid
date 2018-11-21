@@ -14,6 +14,7 @@ import utils.junit_extensions.PropertiesExtension;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @ExtendWith(PropertiesExtension.class)
 public class SignupChecks {

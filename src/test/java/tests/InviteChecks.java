@@ -13,6 +13,7 @@ import utils.domain.Student;
 import utils.domain.Tutor;
 import utils.junit_extensions.PropertiesExtension;
 
+import static com.sun.javafx.fxml.expression.Expression.equalTo;
 import static org.hamcrest.core.IsEqual.equalTo;
 
 @ExtendWith(PropertiesExtension.class)

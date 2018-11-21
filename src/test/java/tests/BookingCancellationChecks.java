@@ -1,6 +1,7 @@
 package tests;
 
 import io.restassured.response.Response;
+import org.apache.http.HttpStatus;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -95,5 +96,38 @@ public class BookingCancellationChecks {
 
         // Checking for success
         assertThat(bookingEventStatus.equals("cancelledByStudentPending"));
+    }
+
+    @Test
+    public void Tutor_RequestsBookingOnBehalfOfStudent_StudentDeclines_Success(){
+        final Tutor tutor = new TutorCreator(Any.tutorUsername()).create();
+        final Student student = new StudentCreator(Any.studentUsername()).create();
+
+        final Response response = new BookingRequest(new DefaultBookingData().tutorScheduled(tutor, student))
+                .asTutor(tutor, student);
+
+        response.then()
+                .statusCode(HttpStatus.SC_OK)
+                .body("description", equalTo("Booking created"));
+        final BookingRequestBuilder builder = new DefaultBookingData().tutorScheduled(tutor, student);
+        JSONObject jsonObject = new JSONObject(response.getBody().asString());
+        // Getting booking Id
+        int bookingId = (int) new JSONObject(jsonObject.getJSONArray("data").get(0).toString()).get("id");
+
+        // Confirming booking from tutor
+        final Response declineResponse = new BookingRequest(builder).decline(tutor.getCookieFilter(),tutor.getNickname(),bookingId);
+
+        // Formating JSON
+        JSONObject declineResponseJson = new JSONObject(declineResponse.getBody().asString());
+        String instances = (String) new JSONObject(declineResponseJson.getJSONObject("data")
+                .toString())
+                .getJSONArray("instances")
+                .get(0)
+                .toString();
+        String bookingEventStatus = new JSONObject(instances).getString("bookingEventStatus");
+
+        // Checking for success
+        assertThat(bookingEventStatus.equals("declined"));
+
     }
 }
