@@ -32,6 +32,13 @@ public class Availability {
         return this;
     }
 
+    public Availability yesterdayFromNow1H(){
+        final Instant tomorrow = Instant.now().truncatedTo(ChronoUnit.HOURS).minus(1, ChronoUnit.DAYS);
+        this.availability.put("startDateTime", tomorrow.toString());
+        this.availability.put("endDateTime", tomorrow.plus(1, ChronoUnit.HOURS).toString());
+        return this;
+    }
+
     public Response add(final Tutor tutor){
         this.availability.put("discount", 0);
         this.availability.put("privateLocationIds",new JSONArray());
