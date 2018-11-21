@@ -14,7 +14,14 @@ Run the tests from your IDE (make sure its version is not too old so it supports
 or execute the gradle test task from command line.
 
 ## Group info
-Please write here your group number and members
+
+1. Hina Anwar
+
+2. Khaled Charkie
+
+3. Mehwish Peter
+
+4. Hanzla Sajid
 
 ## License
 
