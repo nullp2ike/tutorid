@@ -13,7 +13,7 @@ Install Java 8 JDK and preferably download an IDE of your choice. We use Intelli
 Run the tests from your IDE (make sure its version is not too old so it supports JUnit 5)
 or execute the gradle test task from command line.
 
-## Group info
+## Group info (Group 1)
 
 1. Hina Anwar
 
