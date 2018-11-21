@@ -1,3 +1,6 @@
+# Team Members:
+Klaarika Lehes, Marilin Mättik, Sergei Kuštšenko, Sander-Karl Kivivare, Karl Meldorf
+
 # Tutor.id public API tests
 
 A project for students of University of Tartu's software testing students for learning to created automated integration tests using public REST APIs.
