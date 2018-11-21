@@ -45,4 +45,5 @@ public class SignupChecks {
         assertThat(playerProfile.getBoolean("isTutor")).isEqualTo(true);
         assertThat(playerProfile.getString("email")).isEqualTo("tutoridtest+" + tutor.getNickname() + "@gmail.com");
     }
+
 }
