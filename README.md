@@ -14,6 +14,7 @@ Run the tests from your IDE (make sure its version is not too old so it supports
 or execute the gradle test task from command line.
 
 ## Group info
+Can't get Git to work on local machine, so the modified files are all in the root folder.
 Group 2
 Mikk Õunmaa
 Tarmo-Riivo Tšernjavski
