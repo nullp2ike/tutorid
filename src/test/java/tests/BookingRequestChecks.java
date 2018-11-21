@@ -60,6 +60,36 @@ public class BookingRequestChecks {
                 .body("description", equalTo("Booking created"));
     }
 
+    @Test
+    public void Student_RequestsBookingForYesterday_Fail(){
+        //First we create a logged in tutor and student
+        final Tutor tutor = new TutorCreator(Any.tutorUsername()).create();
+        final Student student = new StudentCreator(Any.studentUsername()).create();
+
+        final Response r = new Availability().yesterdayFromNow1H().add(tutor);
+        System.out.println(r.getBody().asString());
+
+        r.then().body("description", equalTo("Cannot book for yesterday"));
+
+    }
+
+
+    @Test
+    public void Student_RequestsBookingSendingNoInvitationRequestViaTutorAvailableTimeSlot_Success(){
+        Tutor tutor = new TutorCreator().create();
+        final Student student = new StudentCreator().create();
+
+        final Response r = new Availability().tomorrowFromNow1H().add(tutor);
+        r.then().body("description", equalTo("Availability created"));
+        System.out.println(r.getBody().asString());
+
+        final BookingRequestBuilder builder = new DefaultBookingData().bookedByStudentViaTimeSlot(tutor, student);
+        final Response response = new BookingRequest(builder).asStudent(tutor, student);
+        System.out.println(response.getBody().asString());
+        response.then().statusCode(HttpStatus.SC_OK)
+                .body("description", equalTo("Booking created"));
+    }
+
     private void sendInviteAndAcceptByStudent(final Tutor tutor, final Student student) {
         new Invite().send(tutor, student.getEmail());
         final Response invitationLinkResponse = new Invite().invitationLink(student);
@@ -67,8 +97,8 @@ public class BookingRequestChecks {
 
         final Response acceptResponse = new Invite().accept(invitationId, student);
         acceptResponse.then()
-                      .statusCode(HttpStatus.SC_OK)
-                      .body("success", equalTo(true));
+                .statusCode(HttpStatus.SC_OK)
+                .body("success", equalTo(true));
     }
 
 }
